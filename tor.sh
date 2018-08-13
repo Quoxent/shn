@@ -3,8 +3,8 @@
 sudo apt -qqy install curl
 clear
 
-TARBALLURL=`curl -s https://api.github.com/repos/bulwark-crypto/bulwark/releases/latest | grep browser_download_url | grep linux64 | cut -d '"' -f 4`
-TARBALLNAME=`curl -s https://api.github.com/repos/bulwark-crypto/bulwark/releases/latest | grep browser_download_url | grep linux64 | cut -d '"' -f 4 | cut -d "/" -f 9`
+TARBALLURL=`curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep linux64 | cut -d '"' -f 4`
+TARBALLNAME=`curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep linux64 | cut -d '"' -f 4 | cut -d '/' -f 9`
 
 if [ "$(id -u)" != "0" ]; then
     echo "Sorry, this script needs to be run as root. Do \"sudo bash run.sh\""
@@ -40,7 +40,7 @@ sudo apt-get install git -y
 sleep 3
 sudo apt install golang -y
 sleep 3
-sudo wget --directory-prefix=/etc/fail2ban/ https://raw.githubusercontent.com/bulwark-crypto/shn/master/jail.local
+sudo wget --directory-prefix=/etc/fail2ban/ https://raw.githubusercontent.com/vulcanocrypto/shn/master/jail.local
 sudo apt install unattended-upgrades -y
 sleep 3
 sudo sh -c 'echo "Unattended-Upgrade::Allowed-Origins {" >> /etc/apt/apt.conf.d/50unattended-upgrades'
@@ -48,19 +48,19 @@ sudo sh -c 'echo "        "${distro_id}:${distro_codename}";" >> /etc/apt/apt.co
 sudo sh -c 'echo "        "${distro_id}:${distro_codename}-security";" >> /etc/apt/apt.conf.d/50unattended-upgrades'
 sudo sh -c 'echo "APT::Periodic::AutocleanInterval "7";" >> /etc/apt/apt.conf.d/20auto-upgrades'
 sudo sh -c 'echo "APT::Periodic::Unattended-Upgrade "1";" >> /etc/apt/apt.conf.d/20auto-upgrades'
-sudo adduser --gecos "" bulwark --disabled-password > /dev/null
+sudo adduser --gecos "" vulcano --disabled-password > /dev/null
 sleep 1
-sudo cat > /etc/systemd/system/bulwarkd.service << EOL
+sudo cat > /etc/systemd/system/vulcanod.service << EOL
 [Unit]
-Description=Bulwarks's distributed currency daemon
+Description=Vulcanos's distributed currency daemon
 After=network.target
 [Service]
-User=bulwark
-Group=bulwark
-WorkingDirectory=/home/bulwark
+User=vulcano
+Group=vulcano
+WorkingDirectory=/home/vulcano
 Type=forking
-ExecStart=/usr/bin/bulwarkd -datadir=/home/bulwark/.bulwark -conf=/home/bulwark/.bulwark/bulwark.conf -daemon
-ExecStop=/usr/bin/bulwark-cli -datadir=/home/bulwark/.bulwark -conf=/home/bulwark/.bulwark/bulwark.conf stop
+ExecStart=/usr/bin/vulcanod -datadir=/home/vulcano/.vulcanocore -conf=/home/vulcano/.vulcanocore/vulcano.conf -daemon
+ExecStop=/usr/bin/vulcano-cli -datadir=/home/vulcano/.vulcanocore -conf=/home/vulcano/.vulcanocore/vulcano.conf stop
 #KillMode=process
 Restart=always
 TimeoutSec=120
@@ -73,7 +73,7 @@ sleep 1
 sudo wget https://storage.googleapis.com/golang/go1.9.linux-armv6l.tar.gz
 sudo tar -C /usr/local -xzf go1.9.linux-armv6l.tar.gz
 sudo rm go1.9.linux-armv6l.tar.gz
-sudo mkdir -p /home/bulwark/go/bin
+sudo mkdir -p /home/vulcano/go/bin
 sleep 1
 # put into global /etc/profile
 export PATH=$PATH:/usr/local/go/bin
@@ -85,13 +85,13 @@ source /etc/profile
 source ~/.profile
 sleep 1
 
-sudo mkdir /home/bulwark/.bulwark
-sudo touch /home/bulwark/.bulwark/bulwark.conf
-sudo chown -R bulwark:bulwark /home/bulwark/.bulwark
+sudo mkdir /home/vulcano/.vulcanocore
+sudo touch /home/vulcano/.vulcanocore/vulcano.conf
+sudo chown -R vulcano:vulcano /home/vulcano/.vulcanocore
 RPCUSER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
 RPCPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-sudo cat > /home/bulwark/.bulwark/bulwark.conf << EOL
+sudo cat > /home/vulcano/.vulcanocore/vulcano.conf << EOL
 rpcusername=${RPCUSER}
 rpcpassword=${RPCPASSWORD}
 daemon=1
@@ -99,9 +99,9 @@ EOL
 
 sudo ufw allow 9050
 sleep 2
-sudo ufw allow 52543
+sudo ufw allow 62543
 sleep 2
-sudo ufw allow from 127.0.0.1 to 127.0.0.1 port 52541
+sudo ufw allow from 127.0.0.1 to 127.0.0.1 port 62541
 sleep 2
 sudo ufw allow 22
 yes | sudo ufw enable
@@ -109,16 +109,16 @@ sleep 2
 sudo wget $TARBALLURL
 sleep 2
 sudo tar -xzf $TARBALLNAME
-sudo mv bin bulwark
-cd bulwark
-sudo cp bulwark* /usr/bin
-sudo sh -c 'echo "#" >> /home/bulwark/.bulwark/bulwark.conf'
-sudo sh -c 'echo "### TOR CONFIG ###" >> /home/bulwark/.bulwark/bulwark.conf'
-sudo sh -c 'echo "onion=127.0.0.1:9050" >> /home/bulwark/.bulwark/bulwark.conf'
-sudo sh -c 'echo "onlynet=tor" >> /home/bulwark/.bulwark/bulwark.conf'
-sudo sh -c 'echo "bind=127.0.0.1" >> /home/bulwark/.bulwark/bulwark.conf'
-sudo sh -c 'echo "listen=1" >> /home/bulwark/.bulwark/bulwark.conf'
-sudo sh -c 'echo "dnsseed=0" >> /home/bulwark/.bulwark/bulwark.conf'
+sudo mv bin vulcano
+cd vulcano
+sudo cp vulcano* /usr/bin
+sudo sh -c 'echo "#" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "### TOR CONFIG ###" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "onion=127.0.0.1:9050" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "onlynet=tor" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "bind=127.0.0.1" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "listen=1" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "dnsseed=0" >> /home/vulcano/.vulcanocore/vulcano.conf'
 sudo sh -c 'echo "### XERONET ROCKET TORRC for BWK ###" >> /etc/tor/torrc'
 sudo sh -c 'echo "HiddenServiceDir /var/lib/tor/hidden_service/" >> /etc/tor/torrc'
 sudo sh -c 'echo "ClientOnly 1" >> /etc/tor/torrc'
@@ -132,9 +132,9 @@ sudo sh -c 'echo "ExitNodes  31.185.104.19/32,31.185.104.20/31,46.182.106.190/32
 sudo sh -c 'echo "ExcludeNodes  default,Unnamed,{ae},{af},{ag},{ao},{az},{ba},{bb},{bd},{bh},{bi},{bn},{bt},{bw},{by},{cd},{cf},{cg},{ci},{ck},{cm},{cn},{cu},{cy},{dj},{dm},{dz},{eg},{er},{et},{fj},{ga},{gd},{gh},{gm},{gn},{gq},{gy},{hr},{ht},{id},{in},{iq},{ir},{jm},{jo},{ke},{kg},{kh},{ki},{km},{kn},{kp},{kw},{kz},{la},{lb},{lc},{lk},{lr},{ly},{ma},{me},{mk},{ml},{mm},{mr},{mu},{mv},{mw},{my},{na},{ng},{om},{pg},{ph},{pk},{ps},{qa},{rs},{ru},{rw},{sa},{sb},{sd},{sg},{si},{sl},{sn},{so},{st},{sy},{sz},{td},{tg},{th},{tj},{tm},{tn},{to},{tr},{tt},{tv},{tz},{ug},{uz},{vc},{ve},{vn},{ws},{ye},{zm},{zw},{??}" >> /etc/tor/torrc'
 sudo sh -c 'echo "ExcludeExitNodes  default,Unnamed,{ae},{af},{ag},{ao},{az},{ba},{bb},{bd},{bh},{bi},{bn},{bt},{bw},{by},{cd},{cf},{cg},{ci},{ck},{cm},{cn},{cu},{cy},{dj},{dm},{dz},{eg},{er},{et},{fj},{ga},{gd},{gh},{gm},{gn},{gq},{gy},{hr},{ht},{id},{in},{iq},{ir},{jm},{jo},{ke},{kg},{kh},{ki},{km},{kn},{kp},{kw},{kz},{la},{lb},{lc},{lk},{lr},{ly},{ma},{me},{mk},{ml},{mm},{mr},{mu},{mv},{mw},{my},{na},{ng},{om},{pg},{ph},{pk},{ps},{qa},{rs},{ru},{rw},{sa},{sb},{sd},{sg},{si},{sl},{sn},{so},{st},{sy},{sz},{td},{tg},{th},{tj},{tm},{tn},{to},{tr},{tt},{tv},{tz},{ug},{uz},{vc},{ve},{vn},{ws},{ye},{zm},{zw},{??}" >> /etc/tor/torrc'
 sudo sh -c 'echo "HiddenServiceDir /var/lib/tor/hidden_service/" >> /etc/tor/torrc'
-sudo sh -c 'echo "HiddenServicePort 52543 127.0.0.1:52543" >> /etc/tor/torrc'
+sudo sh -c 'echo "HiddenServicePort 62543 127.0.0.1:62543" >> /etc/tor/torrc'
 sudo sh -c 'echo "HiddenServicePort 80 127.0.0.1:80" >> /etc/tor/torrc'
-sudo sh -c 'echo "LongLivedPorts 80,52543" >> /etc/tor/torrc'
+sudo sh -c 'echo "LongLivedPorts 80,62543" >> /etc/tor/torrc'
 sudo /etc/init.d/tor restart
 sleep 3
 sudo /etc/init.d/tor stop
@@ -146,22 +146,22 @@ sudo /etc/init.d/tor start
 sudo echo "Tor installed, configured and restarted"
 sleep 5
 cd ~
-sudo mv /home/pi/bulwark /home/bulwark/
-sudo chown -R bulwark:bulwark /home/bulwark/bulwark/
+sudo mv /home/pi/vulcano /home/vulcano/
+sudo chown -R vulcano:vulcano /home/vulcano/vulcano/
 sleep 1
-sudo systemctl enable bulwarkd.service
+sudo systemctl enable vulcanod.service
 sleep 1
-sudo systemctl start bulwarkd.service
+sudo systemctl start vulcanod.service
 sleep 1
-echo "externalip=`sudo cat /var/lib/tor/hidden_service/hostname`" >> /home/bulwark/.bulwark/bulwark.conf
+echo "externalip=`sudo cat /var/lib/tor/hidden_service/hostname`" >> /home/vulcano/.vulcanocore/vulcano.conf
 sudo echo ""
 sudo echo "if everything went well i should be syncing. We will check that..."
 sudo echo ""
 sudo echo "I will open the getinfo screen for you in watch mode, close it with CTRL + C once we are up to date, i will continue after that"
 sleep 20
-watch bulwark-cli -datadir=/home/bulwark/.bulwark -conf=/home/bulwark/.bulwark/bulwark.conf getinfo
+watch vulcano-cli -datadir=/home/vulcano/.vulcanocore -conf=/home/vulcano/.vulcanocore/vulcano.conf getinfo
 sudo echo "Daemon Status:"
-sudo systemctl status bulwarkd.service | sed -n -e 's/^.*Active: //p'
+sudo systemctl status vulcanod.service | sed -n -e 's/^.*Active: //p'
 sudo echo ""
 sudo echo "Tor Status:"
 curl --socks5 localhost:9050 --socks5-hostname localhost:9050 -s https://check.torproject.org/ | cat | grep -m 1 Congratulations | xargs
@@ -170,7 +170,7 @@ sudo echo "Show Onion Address:"
 sudo cat /var/lib/tor/hidden_service/hostname
 sudo echo ""
 sudo echo "Show Active Peers:"
-bulwark-cli -datadir=/home/bulwark/.bulwark -conf=/home/bulwark/.bulwark/bulwark.conf getpeerinfo | sed -n -e 's/^.*"addr" : //p'
+vulcano-cli -datadir=/home/vulcano/.vulcanocore -conf=/home/vulcano/.vulcanocore/vulcano.conf getpeerinfo | sed -n -e 's/^.*"addr" : //p'
 sudo echo ""
 sudo echo "Firewall Rules:"
 sudo ufw status
