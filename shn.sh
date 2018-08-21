@@ -292,7 +292,6 @@ echo TORNODE "$(sudo cat /var/lib/tor/hidden_service/hostname):62543" "$(sudo gr
 echo ""
 echo "Important Other Infos:"
 echo ""
-echo "Vulcano bin dir: /home/vulcano/vulcano"
 echo "vulcano.conf: /home/vulcano/.vulcanocore/vulcano.conf"
 echo ""
 echo "Start daemon: sudo systemctl start vulcanod.service"
