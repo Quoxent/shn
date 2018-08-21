@@ -60,7 +60,7 @@ sudo sh -c 'echo "APT::Periodic::AutocleanInterval "7";" >> /etc/apt/apt.conf.d/
 sudo sh -c 'echo "APT::Periodic::Unattended-Upgrade "1";" >> /etc/apt/apt.conf.d/20auto-upgrades'
 sudo adduser --gecos "" vulcano --disabled-password > /dev/null
 sleep 1
-sudo tee /etc/systemd/system/vulcano.service << EOL
+sudo tee /etc/systemd/system/vulcanod.service << EOL
 [Unit]
 Description=Vulcanos's distributed currency daemon
 After=network.target
@@ -132,13 +132,33 @@ sudo tar -xzf "$TARBALLNAME"
 cd "vulcano-$VULCVERSION" || exit
 sudo cp vulcano* /usr/local/bin
 sudo sh -c 'echo "### TOR CONFIG ###" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "onion=127.0.0.1:9050" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "onlynet=tor" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "bind=127.0.0.1" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "listen=1" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "dnsseed=0" >> /home/vulcano/.vulcanocore/vulcano.conf'
+sudo sh -c 'echo "### XERONET ROCKET TORRC for BWK ###" >> /etc/tor/torrc'
+sudo sh -c 'echo "HiddenServiceDir /var/lib/tor/hidden_service/" >> /etc/tor/torrc'
+sudo sh -c 'echo "ClientOnly 1" >> /etc/tor/torrc'
+sudo sh -c 'echo "ControlPort 9051" >> /etc/tor/torrc'
+sudo sh -c 'echo "NumEntryGuards 4" >> /etc/tor/torrc'
+sudo sh -c 'echo "NumDirectoryGuards 3" >> /etc/tor/torrc'
+sudo sh -c 'echo "GuardLifetime 2764800" >> /etc/tor/torrc'
+sudo sh -c 'echo "GeoIPExcludeUnknown 1" >> /etc/tor/torrc'
+sudo sh -c 'echo "EntryNodes 31.185.104.19/32,31.185.104.20/31,46.182.106.190/32,51.15.13.245/32,51.15.43.232/32,51.15.44.197/32,51.15.45.97/32,51.15.46.49/32,51.15.50.133/32,51.15.57.177/32,51.15.57.79/32,51.15.60.255/32,51.15.60.62/32,62.102.148.67/32,62.138.7.171/32,77.109.139.87/32,78.142.140.242/32,80.67.172.162/32,81.7.10.29/32,82.94.251.227/32,85.248.227.163/32,85.248.227.164/31,86.59.119.83/32,86.59.119.88/32,89.234.157.254/32,91.121.23.100/32,94.140.120.44/32,94.242.246.23/32,94.242.246.24/32,94.252.114.48/32,95.142.161.63/32,134.119.3.164/32,171.25.193.20/32,171.25.193.25/32,171.25.193.77/32,171.25.193.78/32,176.10.104.240/32,176.10.104.243/32,176.126.252.11/32,176.126.252.12/32,178.16.208.55/32,178.16.208.56/30,178.16.208.60/31,178.16.208.62/32,178.20.55.16/32,178.20.55.18/32,178.209.42.84/32,185.100.84.82/32,185.100.86.100/32,185.34.33.2/32,185.86.149.75/32,188.118.198.244/32,192.36.27.4/32,192.36.27.6/31,192.42.116.16/32,212.51.156.78/32" >> /etc/tor/torrc'
+sudo sh -c 'echo "ExitNodes 31.185.104.19/32,31.185.104.20/31,46.182.106.190/32,51.15.43.232/32,51.15.44.197/32,51.15.45.97/32,51.15.46.49/32,51.15.50.133/32,51.15.57.177/32,51.15.57.79/32,51.15.60.255/32,51.15.60.62/32,62.102.148.67/32,77.109.139.87/32,80.67.172.162/32,85.248.227.163/32,85.248.227.164/31,89.234.157.254/32,94.242.246.23/32,94.242.246.24/32,95.142.161.63/32,171.25.193.20/32,171.25.193.25/32,171.25.193.77/32,171.25.193.78/32,176.10.104.240/32,176.10.104.243/32,176.126.252.11/32,176.126.252.12/32,178.20.55.16/32,178.20.55.18/32,178.209.42.84/32,185.100.84.82/32,185.100.86.100/32,185.34.33.2/32,192.36.27.4/32,192.36.27.6/31,192.42.116.16/32,212.16.104.33/32" >> /etc/tor/torrc'
+sudo sh -c 'echo "ExcludeNodes default,Unnamed,{ae},{af},{ag},{ao},{az},{ba},{bb},{bd},{bh},{bi},{bn},{bt},{bw},{by},{cd},{cf},{cg},{ci},{ck},{cm},{cn},{cu},{cy},{dj},{dm},{dz},{eg},{er},{et},{fj},{ga},{gd},{gh},{gm},{gn},{gq},{gy},{hr},{ht},{id},{in},{iq},{ir},{jm},{jo},{ke},{kg},{kh},{ki},{km},{kn},{kp},{kw},{kz},{la},{lb},{lc},{lk},{lr},{ly},{ma},{me},{mk},{ml},{mm},{mr},{mu},{mv},{mw},{my},{na},{ng},{om},{pg},{ph},{pk},{ps},{qa},{rs},{ru},{rw},{sa},{sb},{sd},{sg},{si},{sl},{sn},{so},{st},{sy},{sz},{td},{tg},{th},{tj},{tm},{tn},{to},{tr},{tt},{tv},{tz},{ug},{uz},{vc},{ve},{vn},{ws},{ye},{zm},{zw},{??}" >> /etc/tor/torrc'
+sudo sh -c 'echo "ExcludeExitNodes default,Unnamed,{ae},{af},{ag},{ao},{az},{ba},{bb},{bd},{bh},{bi},{bn},{bt},{bw},{by},{cd},{cf},{cg},{ci},{ck},{cm},{cn},{cu},{cy},{dj},{dm},{dz},{eg},{er},{et},{fj},{ga},{gd},{gh},{gm},{gn},{gq},{gy},{hr},{ht},{id},{in},{iq},{ir},{jm},{jo},{ke},{kg},{kh},{ki},{km},{kn},{kp},{kw},{kz},{la},{lb},{lc},{lk},{lr},{ly},{ma},{me},{mk},{ml},{mm},{mr},{mu},{mv},{mw},{my},{na},{ng},{om},{pg},{ph},{pk},{ps},{qa},{rs},{ru},{rw},{sa},{sb},{sd},{sg},{si},{sl},{sn},{so},{st},{sy},{sz},{td},{tg},{th},{tj},{tm},{tn},{to},{tr},{tt},{tv},{tz},{ug},{uz},{vc},{ve},{vn},{ws},{ye},{zm},{zw},{??}" >> /etc/tor/torrc'
+sudo sh -c 'echo "HiddenServiceDir /var/lib/tor/hidden_service/" >> /etc/tor/torrc'
+sudo sh -c 'echo "HiddenServicePort 62543 127.0.0.1:62543" >> /etc/tor/torrc'
+sudo sh -c 'echo "HiddenServicePort 80 127.0.0.1:80" >> /etc/tor/torrc'
+sudo sh -c 'echo "LongLivedPorts 80,62543" >> /etc/tor/torrc'
 sudo sh -c 'echo "### TOR CONF END###" >> /home/vulcano/.vulcanocore/vulcano.conf'
 sleep 3
 sudo /etc/init.d/tor stop
 sleep 1
 sudo touch /etc/cron.d/torcheck
 sudo sh -c 'echo "*/5 * * * * root /etc/init.d/tor start > /dev/null 2>&1" >> /etc/cron.d/torcheck' ### CHECK ME or USE CRONTAB -e
-sudo rm -R /var/lib/tor/hidden_service
 sudo /etc/init.d/tor start
 echo "Tor installed, configured and restarted"
 sleep 5
@@ -223,8 +243,6 @@ sudo systemctl enable bwk-dash.service
 sleep 1
 
 cd ~ || exit
-sudo mv "/home/pi/vulcano-$VULCVERSION" /home/vulcano/
-sudo chown -R vulcano:vulcano /home/vulcano/vulcano/
 sleep 1
 sudo systemctl enable vulcanod.service
 sleep 1
