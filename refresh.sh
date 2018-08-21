@@ -42,12 +42,12 @@ clear
 echo "Your masternode is syncing. Please wait for this process to finish."
 echo "This can take up to a few hours. Do not close this window." && echo ""
 
-until [ -n "$(vulcano-cli getconnectioncount 2>/dev/null)"  ]; do
-    sleep 1
-done
+# until [ -n "$(vulcano-cli getconnectioncount 2>/dev/null)"  ]; do
+#     sleep 1
+# done
 
-until sudo su -c "vulcano-cli mnsync status 2>/dev/null | grep '\"IsBlockchainSynced\" : true' > /dev/null" vulcano; do
-    echo -ne "Current block: " "$(sudo su -c "vulcano-cli getinfo" vulcano | grep blocks | awk '{print $3}' | cut -d ',' -f 1)" '\r'
+until vulcano-cli mnsync status 2>/dev/null | grep '\"IsBlockchainSynced\" : true' >/dev/null; do
+    echo -ne "Current block: $(vulcano-cli getinfo | grep blocks | awk '{print $3}' | cut -d ',' -f 1) '\\r'"
     sleep 1
 done
 
@@ -61,7 +61,7 @@ the Masternodes tab, select your new node and click "Start Alias."
 
 EOL
 
-read -rp "Press Enter to continue after you've done that. " -n1 -s
+read -rp "Press Enter to continue after you have done that. " -n1 -s
 
 clear
 
