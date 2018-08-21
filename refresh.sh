@@ -14,7 +14,7 @@ clear
 if [ -e /etc/systemd/system/vulcanod.service ]; then
     sudo systemctl stop vulcanod
 else
-    su -c "vulcano-cli stop" vulcano
+    sudo su -c "vulcano-cli stop" vulcano
 fi
 
 echo "Refreshing node, please wait."
@@ -34,7 +34,7 @@ sudo cp /home/vulcano/.vulcano/vulcano.conf /home/vulcano/.vulcano/vulcano.conf.
 if [ -e /etc/systemd/system/vulcanod.service ]; then
     sudo systemctl start vulcanod
 else
-    su -c "vulcanod -daemon" vulcano
+    sudo su -c "vulcanod -daemon" vulcano
 fi
 
 clear
@@ -46,7 +46,7 @@ until [ -n "$(vulcano-cli getconnectioncount 2>/dev/null)"  ]; do
     sleep 1
 done
 
-until su -c "vulcano-cli mnsync status 2>/dev/null | grep '\"IsBlockchainSynced\" : true' > /dev/null" vulcano; do
+until sudo su -c "vulcano-cli mnsync status 2>/dev/null | grep '\"IsBlockchainSynced\" : true' > /dev/null" vulcano; do
     echo -ne "Current block: "`sudo su -c "vulcano-cli getinfo" vulcano | grep blocks | awk '{print $3}' | cut -d ',' -f 1`'\r'
     sleep 1
 done
@@ -66,10 +66,10 @@ read -p "Press Enter to continue after you've done that. " -n1 -s
 clear
 
 sleep 1
-su -c "/usr/local/bin/vulcano-cli startmasternode local false" vulcano
+sudo su -c "/usr/local/bin/vulcano-cli startmasternode local false" vulcano
 sleep 1
 clear
-su -c "/usr/local/bin/vulcano-cli masternode status" vulcano
+sudo su -c "/usr/local/bin/vulcano-cli masternode status" vulcano
 sleep 5
 
 echo "" && echo "Masternode refresh completed." && echo ""
