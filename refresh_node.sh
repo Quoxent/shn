@@ -27,10 +27,9 @@ sudo rm -rf /home/vulcano/.vulcano/chainstate
 sudo rm -rf /home/vulcano/.vulcano/peers.dat
 
 sudo cp /home/vulcano/.vulcano/vulcano.conf /home/vulcano/.vulcano/vulcano.conf.backup
-sudo sed -i '/^addnode/d' /home/vulcano/.vulcano/vulcano.conf
 
-echo "Installing bootstrap file..."
-wget $BOOTSTRAPURL && sudo xz -cd $BOOTSTRAPARCHIVE > /home/vulcano/.vulcano/bootstrap.dat && rm $BOOTSTRAPARCHIVE
+#echo "Installing bootstrap file..."
+#wget $BOOTSTRAPURL && sudo xz -cd $BOOTSTRAPARCHIVE > /home/vulcano/.vulcano/bootstrap.dat && rm $BOOTSTRAPARCHIVE
 
 if [ -e /etc/systemd/system/vulcanod.service ]; then
     sudo systemctl start vulcanod
