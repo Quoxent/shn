@@ -49,7 +49,7 @@ Connect your monitor to the Raspberry Pi with an HDMI cable and plug in a USB ke
 
 Once you are logged in, run the command
 
-```
+```bash
 sudo raspi-config
 ```
 
@@ -59,7 +59,7 @@ You will see a graphical interface. First, select "Network Options", then "Wi-fi
 
 Put the microSD card from the Raspberry Pi into your card reader and connect it with your computer. In the root directory of the SD card, create a text file called _wpa_supplicant.conf_ and add the following text to it:
 
-```
+```text
 country=YOURCOUNTRYCODE
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev update_config=1
 network={
@@ -83,7 +83,7 @@ Download the [Adafruit Pi Finder](https://github.com/adafruit/Adafruit-Pi-Finder
 
 Open Terminal.app and run the following command:
 
-```
+```bash
 ping raspberrypi.local -c1 | head -1 | awk -F " " '{print $3}'
 ```
 
@@ -95,7 +95,7 @@ If you don't get an address, use the Linux command below.
 
 Open a shell and run the following command:
 
-```
+```bash
 arp -na | grep -i b8:27:eb | head -1 | awk -F ' ' '{print $2}'
 ```
 
@@ -107,20 +107,20 @@ Now you're ready to install! Using [Putty](https://www.putty.org/) or a terminal
 
 Once you are logged in, run this line:
 
-```
+```bash
 bash <( wget -qO - https://raw.githubusercontent.com/vulcanocrypto/shn/master/prepare.sh )
 ```
 
 The installer will prepare some things, then ask you to change your password. After that, your Raspberry will reboot.
 Wait for a minute, log into your Raspberry again, then run this command:
 
-```
+```bash
 sudo bash shn.sh
 ```
 
 Now the Secure Home Node will be installed. After a while, you will see the following line:
 
-```
+```bash
 I will open the getinfo screen for you in watch mode now, close it with CTRL + C once we are fully synced.
 ```
 
@@ -130,7 +130,7 @@ Press Enter to restart one more time.
 
 While the Raspberry Pi is rebooting, add the line you got from the script to _masternode.conf_, restart your wallet, open the debug console and start your masternode with the command
 
-```
+```bash
 startmasternode alias false <mymnalias>
 ```
 
@@ -142,7 +142,7 @@ Congratulations, you're done!
 
 To update your Homenode to the newest version of the Vulcano Protocol simply paste the following line in your terminal:
 
-```
+```bash
 bash <( curl https://raw.githubusercontent.com/vulcanocrypto/shn/master/update.sh )
 ```
 
@@ -150,6 +150,6 @@ bash <( curl https://raw.githubusercontent.com/vulcanocrypto/shn/master/update.s
 
 To refresh your node, similarly to a factory reset button, run the below script:
 
-```
-bash <( curl https://raw.githubusercontent.com/vulcanocrypto/shn/master/refresh_node.sh )
+```bash
+bash <( curl https://raw.githubusercontent.com/vulcanocrypto/shn/master/refresh.sh )
 ```
