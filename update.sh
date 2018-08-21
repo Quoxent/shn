@@ -21,7 +21,7 @@ sudo systemctl stop vulcanod
 echo "Installing Vulcano $VULCVERSION..."
 mkdir ./vulcano-temp && cd ./vulcano-temp
 wget $TARBALLURL
-tar -xzvf $TARBALLNAME && mv bin vulcano-$VULCVERSION
+tar -xzvf $TARBALLNAME
 yes | sudo cp -rf ./vulcano-$VULCVERSION/vulcanod /usr/local/bin
 yes | sudo cp -rf ./vulcano-$VULCVERSION/vulcano-cli /usr/local/bin
 cd ..
