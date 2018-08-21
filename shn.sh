@@ -3,11 +3,11 @@
 sudo apt -qqy install curl
 clear
 
-CHARS="/-\|"
-TARBALLURL=`curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4`
-TARBALLNAME=`curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9`
-VULCVERSION=`curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9 | cut -d '-' -f 2`
-#BOOTSTRAPURL=`curl -s https://api.github.com/repos/vulcanocrypto/vulcano/releases/latest | grep bootstrap.dat.xz | grep browser_download_url | cut -d '"' -f 4`
+CHARS="/-\\|"
+TARBALLURL=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4)
+TARBALLNAME=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9)
+VULCVERSION=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9 | cut -d '-' -f 2)
+#BOOTSTRAPURL=$(curl -s https://api.github.com/repos/vulcanocrypto/vulcano/releases/latest | grep bootstrap.dat.xz | grep browser_download_url | cut -d '"' -f 4)
 #BOOTSTRAPARCHIVE="bootstrap.dat.xz"
 # VULC-Dash variables.
 DASH_BIN_TAR="vulc-dash-1.0.0-linux-arm.tar.gz"
@@ -22,10 +22,10 @@ fi
 
 echo "Preparing installation..."
 if ifconfig | grep wlan0 | grep RUNNING; then
-  PSK=`sudo cat /etc/wpa_supplicant/wpa_supplicant.conf | grep -o -o 'psk=".*"' | cut -c 5- | sed 's/"//g'`
-  SSID=`sudo cat /etc/wpa_supplicant/wpa_supplicant.conf | grep -o -o 'ssid=".*"' | cut -c 6- | sed 's/"//g'`
-  NEWPSK=`wpa_passphrase $SSID $PSK | head -4 | tail -1 | cut -c 6-`
-  sudo sed -i s/psk=.*$/psk=$NEWPSK/g /etc/wpa_supplicant/wpa_supplicant.conf
+  PSK=$(sudo cat /etc/wpa_supplicant/wpa_supplicant.conf | grep -o -o 'psk=".*"' | cut -c 5- | sed 's/"//g')
+  SSID=$(sudo cat /etc/wpa_supplicant/wpa_supplicant.conf | grep -o -o 'ssid=".*"' | cut -c 6- | sed 's/"//g')
+  NEWPSK=$(wpa_passphrase "$SSID" "$PSK" | head -4 | tail -1 | cut -c 6-)
+  sudo sed -i "s/psk=.*$/psk=$NEWPSK/g" /etc/wpa_supplicant/wpa_supplicant.conf
 fi
 
 sudo apt-get -y update
@@ -60,7 +60,7 @@ sudo sh -c 'echo "APT::Periodic::AutocleanInterval "7";" >> /etc/apt/apt.conf.d/
 sudo sh -c 'echo "APT::Periodic::Unattended-Upgrade "1";" >> /etc/apt/apt.conf.d/20auto-upgrades'
 sudo adduser --gecos "" vulcano --disabled-password > /dev/null
 sleep 1
-sudo cat > /etc/systemd/system/vulcano.service << EOL
+sudo tee /etc/systemd/system/vulcano.service << EOL
 [Unit]
 Description=Vulcanos's distributed currency daemon
 After=network.target
@@ -87,9 +87,9 @@ sudo mkdir /home/vulcano/.vulcanocore
 #wget $BOOTSTRAPURL && xz -cd $BOOTSTRAPARCHIVE > /home/vulcano/.vulcanocore/bootstrap.dat && rm $BOOTSTRAPARCHIVE
 sudo touch /home/vulcano/.vulcanocore/vulcano.conf
 sudo chown -R vulcano:vulcano /home/vulcano/.vulcanocore
-RPCUSER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
-RPCPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-sudo cat > /home/vulcano/.vulcanocore/vulcano.conf << EOL
+RPCUSER=$(dd if=/dev/urandom bs=3 count=512 status=none | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+RPCPASSWORD=$(dd if=/dev/urandom bs=3 count=512 status=none | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+sudo tee /home/vulcano/.vulcanocore/vulcano.conf << EOL
 rpcuser=${RPCUSER}
 rpcpassword=${RPCPASSWORD}
 daemon=1
@@ -106,7 +106,7 @@ sudo ufw allow ssh
 sleep 2
 sudo ufw allow from 127.0.0.1 to 127.0.0.1 port 62541
 sleep 2
-sudo ufw allow from `ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/' | awk -F"." '{print $1"."$2"."$3".0/24"}'` to any port 22
+sudo ufw allow from "$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/' | awk -F"." '{print $1"."$2"."$3".0/24"}')" to any port 22
 sleep 2
 
 sudo tee -a /etc/ufw/before.rules << EOL
@@ -126,15 +126,12 @@ if ! grep -q "ulimit -s 256" /etc/default/fail2ban; then
   sudo systemctl restart fail2ban
 fi
 
-sudo wget $TARBALLURL
+sudo wget "$TARBALLURL"
 sleep 2
-sudo tar -xzf $TARBALLNAME
-sudo mv bin vulcano
-sudo rm $TARBALLNAME
-cd vulcano
+sudo tar -xzf "$TARBALLNAME"
+cd "vulcano-$VULCVERSION" || exit
 sudo cp vulcano* /usr/local/bin
-sudo sh -c 'echo "### TOR CONFIG ###" >> /home/vulcano/.ulcanocore/vulcano.conf'
-
+sudo sh -c 'echo "### TOR CONFIG ###" >> /home/vulcano/.vulcanocore/vulcano.conf'
 sudo sh -c 'echo "### TOR CONF END###" >> /home/vulcano/.vulcanocore/vulcano.conf'
 sleep 3
 sudo /etc/init.d/tor stop
@@ -153,7 +150,7 @@ ONION_ADDR=$( sudo cat /var/lib/tor/hidden_service/hostname )
 echo "Installing VULC-DASH"
 #VULC-Dash Setup - START
 # Setup systemd service and start.
-sudo cat > /etc/systemd/system/bwk-dash.service << EOL
+sudo tee /etc/systemd/system/bwk-dash.service << EOL
 [Unit]
 Description=Vulcano Home Node Dashboard
 After=network.target
@@ -179,7 +176,7 @@ sudo mkdir -p /home/vulcano/dash
 sudo tar -zxf $DASH_HTML_TAR -C /home/vulcano/dash
 rm -f $DASH_HTML_TAR
 # Create .env file for dashboard api and cron.
-cat > /home/vulcano/dash/.env << EOL
+sudo tee /home/vulcano/dash/.env << EOL
 DASH_DONATION_ADDRESS=bRc4WCeyYvzcLSkMrAanM83Nc885JyQTMY
 DASH_PORT=${DASH_PORT}
 DASH_RPC_ADDR=localhost
@@ -194,7 +191,7 @@ sleep 1
 # Cleanup/enforce ownership.
 sudo chown -R vulcano:vulcano /home/vulcano/dash
 # Setup timer and service for bwk-cron.
-sudo cat > /etc/systemd/system/bwk-cron.service << EOL
+sudo tee /etc/systemd/system/bwk-cron.service << EOL
 [Unit]
 Description=Vulcano Home Node Dashboard - Cron
 After=network.target
@@ -208,7 +205,7 @@ TimeoutSec=10
 RestartSec=35
 EOL
 sleep 1
-sudo cat > /etc/systemd/system/bwk-cron.timer << EOL
+sudo tee /etc/systemd/system/bwk-cron.timer << EOL
 [Unit]
 Description=Vulcano Home Node Dashboard - Cron
 [Timer]
@@ -225,8 +222,8 @@ sudo systemctl enable bwk-dash.service
 #VULC-Dash Setup - END
 sleep 1
 
-cd ~
-sudo mv /home/pi/vulcano /home/vulcano/
+cd ~ || exit
+sudo mv "/home/pi/vulcano-$VULCVERSION" /home/vulcano/
 sudo chown -R vulcano:vulcano /home/vulcano/vulcano/
 sleep 1
 sudo systemctl enable vulcanod.service
@@ -238,13 +235,13 @@ echo "Starting up vulcanod, please wait"
 until sudo su -c "vulcano-cli getinfo 2>/dev/null | grep 'balance' > /dev/null" vulcano; do
   for (( i=0; i<${#CHARS}; i++ )); do
     sleep 2
-    echo -en "${CHARS:$i:1}" "\r"
+    echo -en "${CHARS:$i:1}" "\\r"
   done
 done
 
 sudo su -c 'echo "masternodeprivkey=`sudo su -c "vulcano-cli -datadir=/home/vulcano/.vulcanocore -conf=/home/vulcano/.vulcanocore/vulcano.conf masternode genkey" vulcano`" >> /home/vulcano/.vulcanocore/vulcano.conf'
 sudo su -c 'echo "masternode=1" >> /home/vulcano/.vulcanocore/vulcano.conf'
-sudo echo "externalip=`sudo cat /var/lib/tor/hidden_service/hostname`" >> /home/vulcano/.vulcanocore/vulcano.conf
+sudo echo "externalip=$(sudo cat /var/lib/tor/hidden_service/hostname)" | sudo tee -a /home/vulcano/.vulcanocore/vulcano.conf
 echo ""
 echo "I will open the getinfo screen for you in watch mode now, close it with CTRL + C once we are fully synced."
 sleep 20
@@ -273,7 +270,7 @@ echo "Wifi Password hashed:"
 sudo cat /etc/wpa_supplicant/wpa_supplicant.conf | grep 'psk='
 echo ""
 echo "Local Wallet masternode.conf file:"
-echo TORNODE $(sudo cat /var/lib/tor/hidden_service/hostname):62543 $(sudo grep -Po '(?<=masternodeprivkey=).*' /home/vulcano/.vulcanocore/vulcano.conf) $(echo "YOURTXINHERE")
+echo TORNODE "$(sudo cat /var/lib/tor/hidden_service/hostname):62543" "$(sudo grep -Po '(?<=masternodeprivkey=).*' /home/vulcano/.vulcanocore/vulcano.conf)" "YOURTXINHERE"
 echo ""
 echo "Important Other Infos:"
 echo ""
@@ -287,13 +284,13 @@ echo "Stop daemon: sudo systemctl stop vulcanod.service"
 echo "Check vulcanod status: vulcano-cli getinfo"
 echo "Check masternode status: vulcano-cli masternode status"
 echo ""
-echo "VULC-Dash address: http://`ifconfig | grep "inet " | grep -v -m1 "127.0.0.1" | awk '{print $2}'`"
+echo "VULC-Dash address: http://$(ifconfig | grep "inet " | grep -v -m1 "127.0.0.1" | awk '{print $2}')"
 sleep 5
 echo ""
 echo "Adding vulcano-cli shortcut to ~/.profile"
 echo "alias vulcano-cli='sudo vulcano-cli -config=/home/vulcano/.vulcanocore/vulcano.conf -datadir=/home/vulcano/.vulcanocore'" >> /home/pi/.profile
 echo "Installation finished."
-read -p "Press Enter to continue, the system will reboot."
+read -rp "Press Enter to continue, the system will reboot."
 sudo rm -rf shn.sh
 sudo su -c "cd /home/vulcano/dash && /usr/local/bin/bwk-cron"
 sudo chown -R vulcano:vulcano /home/vulcano/dash
