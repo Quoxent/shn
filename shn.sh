@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "Please wait..."
 sudo apt -qqy install curl
 clear
 
