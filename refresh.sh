@@ -8,7 +8,7 @@ clear
 
 clear
 echo "This script will refresh your masternode."
-read -p "Press Ctrl-C to abort or any other key to continue. " -n1 -s
+read -pr "Press Ctrl-C to abort or any other key to continue. " -n1 -s
 clear
 
 if [ -e /etc/systemd/system/vulcanod.service ]; then
@@ -47,7 +47,7 @@ until [ -n "$(vulcano-cli getconnectioncount 2>/dev/null)"  ]; do
 done
 
 until sudo su -c "vulcano-cli mnsync status 2>/dev/null | grep '\"IsBlockchainSynced\" : true' > /dev/null" vulcano; do
-    echo -ne "Current block: "`sudo su -c "vulcano-cli getinfo" vulcano | grep blocks | awk '{print $3}' | cut -d ',' -f 1`'\r'
+    echo -ne "Current block: " "$(sudo su -c "vulcano-cli getinfo" vulcano | grep blocks | awk '{print $3}' | cut -d ',' -f 1)" '\r'
     sleep 1
 done
 
@@ -61,7 +61,7 @@ the Masternodes tab, select your new node and click "Start Alias."
 
 EOL
 
-read -p "Press Enter to continue after you've done that. " -n1 -s
+read -rp "Press Enter to continue after you've done that. " -n1 -s
 
 clear
 
