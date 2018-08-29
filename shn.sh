@@ -51,7 +51,7 @@ sudo apt-get install git -y
 sleep 3
 sudo apt install xz-utils -y
 sleep 3
-sudo wget --directory-prefix=/etc/fail2ban/ https://raw.githubusercontent.com/dustinengle/shn/master/jail.local
+sudo wget --directory-prefix=/etc/fail2ban/ https://raw.githubusercontent.com/vulcanocrypto/shn/master/jail.local
 sudo apt install unattended-upgrades -y
 sleep 3
 sudo sh -c 'echo "Unattended-Upgrade::Allowed-Origins {" >> /etc/apt/apt.conf.d/50unattended-upgrades'
@@ -191,11 +191,11 @@ WantedBy=multi-user.target
 EOL
 sleep 1
 #Get binaries and install.
-wget https://github.com/dustinengle/vulc-dash/releases/download/$DASH_VER/$DASH_BIN_TAR
+wget https://github.com/vulcanocrypto/vulc-dash/releases/download/$DASH_VER/$DASH_BIN_TAR
 sudo tar -zxf $DASH_BIN_TAR -C /usr/local/bin
 rm -f $DASH_BIN_TAR
 #Copy the html files to the dash folder and create.
-wget https://github.com/dustinengle/vulc-dash/releases/download/$DASH_VER/$DASH_HTML_TAR
+wget https://github.com/vulcanocrypto/vulc-dash/releases/download/$DASH_VER/$DASH_HTML_TAR
 sudo mkdir -p /home/vulcano/dash
 sudo tar -zxf $DASH_HTML_TAR -C /home/vulcano/dash
 rm -f $DASH_HTML_TAR

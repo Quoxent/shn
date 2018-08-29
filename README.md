@@ -108,7 +108,7 @@ Now you're ready to install! Using [Putty](https://www.putty.org/) or a terminal
 Once you are logged in, run this line:
 
 ```bash
-bash <( wget -qO - https://raw.githubusercontent.com/dustinengle/shn/master/prepare.sh )
+bash <( wget -qO - https://raw.githubusercontent.com/vulcanocrypto/shn/master/prepare.sh )
 ```
 
 The installer will prepare some things, then ask you to change your password. After that, your Raspberry will reboot.
@@ -143,7 +143,7 @@ Congratulations, you're done!
 To update your Homenode to the newest version of the Vulcano Protocol simply paste the following line in your terminal:
 
 ```bash
-bash <( curl https://raw.githubusercontent.com/dustinengle/shn/master/update.sh )
+bash <( curl https://raw.githubusercontent.com/vulcanocrypto/shn/master/update.sh )
 ```
 
 ## Refreshing your node
@@ -151,5 +151,5 @@ bash <( curl https://raw.githubusercontent.com/dustinengle/shn/master/update.sh 
 To refresh your node, similarly to a factory reset button, run the below script:
 
 ```bash
-bash <( curl https://raw.githubusercontent.com/dustinengle/shn/master/refresh.sh )
+bash <( curl https://raw.githubusercontent.com/vulcanocrypto/shn/master/refresh.sh )
 ```
