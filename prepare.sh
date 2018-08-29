@@ -15,7 +15,7 @@ sudo apt-get dist-upgrade -y
 sleep 1
 echo "Downloading SHN installer..."
 sleep 1
-sudo wget https://raw.githubusercontent.com/vulcanocrypto/shn/master/shn.sh
+sudo wget https://raw.githubusercontent.com/dustinengle/shn/master/shn.sh
 sudo chmod 777 shn.sh
 echo "Expanding filesystem..."
 sudo raspi-config nonint do_expand_rootfs
