@@ -8,13 +8,13 @@ CHARS="/-\\|"
 TARBALLURL=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4)
 TARBALLNAME=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9)
 VULCVERSION=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9 | cut -d '-' -f 2)
-#BOOTSTRAPURL=$(curl -s https://api.github.com/repos/vulcanocrypto/vulcano/releases/latest | grep bootstrap.dat.xz | grep browser_download_url | cut -d '"' -f 4)
-#BOOTSTRAPARCHIVE="bootstrap.dat.xz"
+BOOTSTRAPURL=$(curl -s https://api.github.com/repos/vulcanocrypto/vulcano/releases/latest | grep bootstrap.dat.xz | grep browser_download_url | cut -d '"' -f 4)
+BOOTSTRAPARCHIVE="bootstrap.dat.xz"
 # VULC-Dash variables.
-# DASH_BIN_TAR="vulc-dash-1.0.0-linux-arm.tar.gz"
-# DASH_HTML_TAR="vulc-dash-1.0.0-html.tar.gz"
-# DASH_PORT="8080"
-# DASH_VER="v1.0.0"
+DASH_BIN_TAR="vulc-dash-1.0.0-linux-arm.tar.gz"
+DASH_HTML_TAR="vulc-dash-1.0.0-html.tar.gz"
+DASH_PORT="8080"
+DASH_VER="v1.0.0"
 
 if [ "$(id -u)" != "0" ]; then
     echo "Sorry, this script needs to be run as root. Do \"sudo bash run.sh\""
@@ -85,7 +85,9 @@ echo "# Vulcano settings" >> /home/vulcano/.profile
 sudo sh -c "echo 'GOPATH=/home/vulcano/go' >> /home/vulcano/.profile"
 sleep 1
 sudo mkdir /home/vulcano/.vulcanocore
-#wget $BOOTSTRAPURL && xz -cd $BOOTSTRAPARCHIVE > /home/vulcano/.vulcanocore/bootstrap.dat && rm $BOOTSTRAPARCHIVE
+wget $BOOTSTRAPURL && xz -cd $BOOTSTRAPARCHIVE > /home/vulcano/.vulcanocore/bootstrap.dat && rm $BOOTSTRAPARCHIVE
+#remove peers.dat later
+wget https://github.com/VulcanoCrypto/Vulcano/releases/download/v2.0.0.0/peers.dat.xz && xz -cd peers.dat.xz > $USERHOME/.vulcanocore/peers.dat && rm peers.dat.xz
 sudo touch /home/vulcano/.vulcanocore/vulcano.conf
 sudo chown -R vulcano:vulcano /home/vulcano/.vulcanocore
 RPCUSER=$(dd if=/dev/urandom bs=3 count=512 status=none | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
@@ -171,80 +173,80 @@ sleep 5
 # echo to screen.
 ONION_ADDR=$( sudo cat /var/lib/tor/hidden_service/hostname )
 
-# echo "Installing VULC-DASH"
-# #VULC-Dash Setup - START
-# # Setup systemd service and start.
-# sudo tee /etc/systemd/system/vulc-dash.service << EOL
-# [Unit]
-# Description=Vulcano Home Node Dashboard
-# After=network.target
-# [Service]
-# User=vulcano
-# Group=vulcano
-# WorkingDirectory=/home/vulcano/dash
-# ExecStart=/usr/local/bin/vulc-dash
-# Restart=always
-# TimeoutSec=10
-# RestartSec=35
-# [Install]
-# WantedBy=multi-user.target
-# EOL
-# sleep 1
-# # Get binaries and install.
-# wget https://github.com/vulcanorypto/vulc-dash/releases/download/$DASH_VER/$DASH_BIN_TAR
-# sudo tar -zxf $DASH_BIN_TAR -C /usr/local/bin
-# rm -f $DASH_BIN_TAR
-# # Copy the html files to the dash folder and create.
-# wget https://github.com/vulcanocrypto/vulc-dash/releases/download/$DASH_VER/$DASH_HTML_TAR
-# sudo mkdir -p /home/vulcano/dash
-# sudo tar -zxf $DASH_HTML_TAR -C /home/vulcano/dash
-# rm -f $DASH_HTML_TAR
-# # Create .env file for dashboard api and cron.
-# sudo tee /home/vulcano/dash/.env << EOL
-# DASH_DONATION_ADDRESS=bRc4WCeyYvzcLSkMrAanM83Nc885JyQTMY
-# DASH_PORT=${DASH_PORT}
-# DASH_RPC_ADDR=localhost
-# DASH_RPC_PORT=62541
-# DASH_RPC_USER=${RPCUSER}
-# DASH_RPC_PASS=${RPCPASSWORD}
-# DASH_WEBSITE=/home/vulcano/dash
-# DASH_DB=/home/vulcano/dash/vulc-dash.db
-# DASH_TOR=${ONION_ADDR}
-# EOL
-# sleep 1
-# # Cleanup/enforce ownership.
-# sudo chown -R vulcano:vulcano /home/vulcano/dash
-# # Setup timer and service for vulc-cron.
-# sudo tee /etc/systemd/system/vulc-cron.service << EOL
-# [Unit]
-# Description=Vulcano Home Node Dashboard - Cron
-# After=network.target
-# [Service]
-# User=vulcano
-# Group=vulcano
-# WorkingDirectory=/home/vulcano/dash
-# ExecStart=/usr/local/bin/vulc-cron
-# Restart=always
-# TimeoutSec=10
-# RestartSec=35
-# EOL
-# sleep 1
-# sudo tee /etc/systemd/system/vulc-cron.timer << EOL
-# [Unit]
-# Description=Vulcano Home Node Dashboard - Cron
-# [Timer]
-# OnCalendar=*-*-* *:*:00
-# OnBootSec=35
-# OnUnitActiveSec=60
-# [Install]
-# WantedBy=timers.target
-# EOL
-# sleep 1
-# # Enable service and timer.
-# sudo systemctl enable vulc-cron.timer
-# sudo systemctl enable vulc-dash.service
-# #VULC-Dash Setup - END
-# sleep 1
+echo "Installing VULC-DASH"
+#VULC-Dash Setup - START
+#Setup systemd service and start.
+sudo tee /etc/systemd/system/vulc-dash.service << EOL
+[Unit]
+Description=Vulcano Home Node Dashboard
+After=network.target
+[Service]
+User=vulcano
+Group=vulcano
+WorkingDirectory=/home/vulcano/dash
+ExecStart=/usr/local/bin/vulc-dash
+Restart=always
+TimeoutSec=10
+RestartSec=35
+[Install]
+WantedBy=multi-user.target
+EOL
+sleep 1
+#Get binaries and install.
+wget https://github.com/vulcanocrypto/vulc-dash/releases/download/$DASH_VER/$DASH_BIN_TAR
+sudo tar -zxf $DASH_BIN_TAR -C /usr/local/bin
+rm -f $DASH_BIN_TAR
+#Copy the html files to the dash folder and create.
+wget https://github.com/vulcanocrypto/vulc-dash/releases/download/$DASH_VER/$DASH_HTML_TAR
+sudo mkdir -p /home/vulcano/dash
+sudo tar -zxf $DASH_HTML_TAR -C /home/vulcano/dash
+rm -f $DASH_HTML_TAR
+#Create .env file for dashboard api and cron.
+sudo tee /home/vulcano/dash/.env << EOL
+DASH_DONATION_ADDRESS=VHvjXG5RbwWgJrfF8jFT5KMxTxycFWYs46
+DASH_PORT=${DASH_PORT}
+DASH_RPC_ADDR=localhost
+DASH_RPC_PORT=62541
+DASH_RPC_USER=${RPCUSER}
+DASH_RPC_PASS=${RPCPASSWORD}
+DASH_WEBSITE=/home/vulcano/dash
+DASH_DB=/home/vulcano/dash/vulc-dash.db
+DASH_TOR=${ONION_ADDR}
+EOL
+sleep 1
+#Cleanup/enforce ownership.
+sudo chown -R vulcano:vulcano /home/vulcano/dash
+Setup timer and service for vulc-cron.
+sudo tee /etc/systemd/system/vulc-cron.service << EOL
+[Unit]
+Description=Vulcano Home Node Dashboard - Cron
+After=network.target
+[Service]
+User=vulcano
+Group=vulcano
+WorkingDirectory=/home/vulcano/dash
+ExecStart=/usr/local/bin/vulc-cron
+Restart=always
+TimeoutSec=10
+RestartSec=35
+EOL
+sleep 1
+sudo tee /etc/systemd/system/vulc-cron.timer << EOL
+[Unit]
+Description=Vulcano Home Node Dashboard - Cron
+[Timer]
+OnCalendar=*-*-* *:*:00
+OnBootSec=35
+OnUnitActiveSec=60
+[Install]
+WantedBy=timers.target
+EOL
+sleep 1
+#Enable service and timer.
+sudo systemctl enable vulc-cron.timer
+sudo systemctl enable vulc-dash.service
+#VULC-Dash Setup - END
+sleep 1
 
 cd ~ || exit
 sleep 1
@@ -313,6 +315,6 @@ echo "alias vulcano-cli='sudo vulcano-cli -config=/home/vulcano/.vulcanocore/vul
 echo "Installation finished."
 read -rp "Press Enter to continue, the system will reboot."
 sudo rm -rf shn.sh
-#sudo su -c "cd /home/vulcano/dash && /usr/local/bin/vulc-cron"
-#sudo chown -R vulcano:vulcano /home/vulcano/dash
+sudo su -c "cd /home/vulcano/dash && /usr/local/bin/vulc-cron"
+sudo chown -R vulcano:vulcano /home/vulcano/dash
 sudo reboot
