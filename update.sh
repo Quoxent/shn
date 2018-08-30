@@ -28,7 +28,7 @@ cd ..
 rm -rf ./vulcano-temp
 
 # Remove addnodes from vulcano.conf
-#sudo sed -i '/^addnode/d' /home/vulcano/.vulcano/vulcano.conf
+#sudo sed -i '/^addnode/d' /home/vulcano/.vulcanocore/vulcano.conf
 
 # Add Fail2Ban memory hack if needed
 if ! grep -q "ulimit -s 256" /etc/default/fail2ban; then
