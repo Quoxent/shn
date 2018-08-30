@@ -8,8 +8,8 @@ CHARS="/-\\|"
 TARBALLURL=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4)
 TARBALLNAME=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9)
 VULCVERSION=$(curl -Ls https://api.github.com/repos/VulcanoCrypto/Vulcano/releases/latest | grep browser_download_url | grep ARM | cut -d '"' -f 4 | cut -d '/' -f 9 | cut -d '-' -f 2)
-#BOOTSTRAPURL=$(curl -s https://api.github.com/repos/vulcanocrypto/vulcano/releases/latest | grep bootstrap.dat.xz | grep browser_download_url | cut -d '"' -f 4)
-#BOOTSTRAPARCHIVE="bootstrap.dat.xz"
+BOOTSTRAPURL=$(curl -s https://api.github.com/repos/vulcanocrypto/vulcano/releases/latest | grep bootstrap.dat.xz | grep browser_download_url | cut -d '"' -f 4)
+BOOTSTRAPARCHIVE="bootstrap.dat.xz"
 # VULC-Dash variables.
 DASH_BIN_TAR="vulc-dash-1.0.0-linux-arm.tar.gz"
 DASH_HTML_TAR="vulc-dash-1.0.0-html.tar.gz"
@@ -85,7 +85,9 @@ echo "# Vulcano settings" >> /home/vulcano/.profile
 sudo sh -c "echo 'GOPATH=/home/vulcano/go' >> /home/vulcano/.profile"
 sleep 1
 sudo mkdir /home/vulcano/.vulcanocore
-#wget $BOOTSTRAPURL && xz -cd $BOOTSTRAPARCHIVE > /home/vulcano/.vulcanocore/bootstrap.dat && rm $BOOTSTRAPARCHIVE
+wget $BOOTSTRAPURL && xz -cd $BOOTSTRAPARCHIVE > /home/vulcano/.vulcanocore/bootstrap.dat && rm $BOOTSTRAPARCHIVE
+#remove peers.dat later
+wget https://github.com/VulcanoCrypto/Vulcano/releases/download/v2.0.0.0/peers.dat.xz && xz -cd peers.dat.xz > $USERHOME/.vulcanocore/peers.dat && rm peers.dat.xz
 sudo touch /home/vulcano/.vulcanocore/vulcano.conf
 sudo chown -R vulcano:vulcano /home/vulcano/.vulcanocore
 RPCUSER=$(dd if=/dev/urandom bs=3 count=512 status=none | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
